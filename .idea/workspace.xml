@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6d120aa4-b6e1-445f-aa8a-06e88efde910" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/symfony_app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/symfony_app/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony_app/symfony_app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/symfony_app/symfony_app/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +66,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1756833116762</updated>
-      <workItem from="1756833117968" duration="6364000" />
+      <workItem from="1756833117968" duration="7046000" />
     </task>
     <servers />
   </component>
