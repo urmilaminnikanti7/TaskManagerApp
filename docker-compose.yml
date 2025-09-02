@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  symfony_app:
+    build:
+      context: ./docker/php
+    volumes:
+      - ./symfony_app:/var/www/symfony
+    networks:
+      - symfony
+
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    volumes:
+      - ./symfony_app:/var/www/symfony
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - symfony_app
+    networks:
+      - symfony
+
+  db:
+    image: mysql:8.3
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3307:3306"
+    networks:
+      - symfony
+
+networks:
+  symfony:
