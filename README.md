@@ -98,6 +98,80 @@ Check DB and related migration creation.
 
 
 
+Run php bin/console make:entity User 
+
+
+
+Entity and Repository will create. Follow the setup instructions for creating fields.
+
+
+
+Run php bin/console make:entity Task
+
+
+
+Entity and Repository will create. Follow the setup instructions for creating fields.
+
+
+
+Run php bin/console make:migration 
+
+
+
+Run php bin/console doctrine:migrations:migrate
+
+
+
+Now migrations are created and tables are ready to serve.
+
+
+
+Create controller action to serve pages into frontend.
+
+
+
+php bin/console make:controller HomeController 
+
+
+
+It will create: src/Controller/HomeController.php
+
+&nbsp;               templates/home/index.html.twig
+
+
+
+Create UserController \& Taskcontroller for API creation
+
+
+
+php bin/console make:controller Api/UserController
+
+
+
+\[It will create src/Controller/Api/UserController.php
+
+ 	       templates/api/user/index.html.twig]
+
+
+
+
+
+php bin/console make:controller Api/TaskController
+
+
+
+\[It will create src/Controller/Api/TaskController.php
+
+&nbsp;	       templates/api/task/index.html.twig]
+
+
+
+
+
+If required we can enable phpTestunit reports as well.
+
+
+
 
 
 

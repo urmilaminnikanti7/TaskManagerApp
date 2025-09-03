@@ -23,7 +23,7 @@ class Task
     private ?string $description = null;
 
     #[ORM\Column(length: 20)]
-    #[Assert\Choice(choices: ['todo', 'in_progress', 'done'], message: 'Choose a valid status.')]
+    #[Assert\Choice(choices: ['todo', 'in_progress', 'done'], message: 'Choose a valid status. Allowed: todo, in_progress, done')]
     private ?string $status = 'todo';
 
     #[ORM\Column]
