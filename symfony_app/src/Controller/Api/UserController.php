@@ -32,6 +32,25 @@ class UserController extends AbstractController
     }
 
     // -----------------------------
+    // Get user
+    // GET /api/users
+    // -----------------------------
+    #[Route('/{userId}', name:'getuser', methods: ['GET'])]
+    public function getUserById(int $userId, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $em->getRepository(User::class)->find($userId);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+        ]);
+    }
+
+    // -----------------------------
     // Create a new user
     // POST /api/users
     // -----------------------------
@@ -70,5 +89,74 @@ class UserController extends AbstractController
             'name' => $user->getName(),
             'email' => $user->getEmail(),
         ], 201);
+    }
+
+    // -----------------------------
+    // update user
+    // PATCH /api/users/{userId}
+    // -----------------------------
+    #[Route('/{userId}', name: 'update', methods: ['PATCH'])]
+    public function updateUser(
+        int $userId,
+        Request $request,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator
+    ): JsonResponse {
+
+        $user = $em->getRepository(User::class)->find($userId);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['name'])) {
+            $user->setName($data['name']);
+        }
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        // validate before saving
+        $errors = $validator->validate($user);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorMessages], 400);
+        }
+
+        $em->flush();
+
+        return new JsonResponse([
+            'message' => 'User updated successfully',
+            'user' => [
+                'id' => $user->getId(),
+                'name' => $user->getName(),
+                'email' => $user->getEmail(),
+            ]
+        ]);
+    }
+
+    // -----------------------------
+    // Delete user
+    // DELETE /api/users/{userId}
+    // -----------------------------
+    #[Route('/{userId}', name: 'delete', methods: ['DELETE'])]
+    public function deleteUser(
+        int $userId,
+        EntityManagerInterface $em
+    ): JsonResponse {
+
+        $user = $em->getRepository(User::class)->find($userId);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        return new JsonResponse(['message' => 'User deleted successfully']);
     }
 }

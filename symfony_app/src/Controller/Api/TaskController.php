@@ -41,6 +41,25 @@ class TaskController extends AbstractController
     }
 
     // -----------------------------
+    // Get user
+    // GET /api/users
+    // -----------------------------
+    #[Route('/{taskId}', name:'gettask', methods: ['GET'])]
+    public function getTaskById(int $taskId, EntityManagerInterface $em): JsonResponse
+    {
+        $task = $em->getRepository(Task::class)->find($taskId);
+        if (!$task) {
+            return new JsonResponse(['error' => 'Task not found'], 404);
+        }
+
+        return $this->json([
+            'id' => $task->getId(),
+            'title' => $task->getTitle(),
+            'status' => $task->getStatus(),
+        ], 201);
+    }
+
+    // -----------------------------
     // List all tasks
     // GET /api/tasks
     // -----------------------------

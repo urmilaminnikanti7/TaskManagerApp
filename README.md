@@ -98,7 +98,7 @@ Check DB and related migration creation.
 
 
 
-Run php bin/console make:entity User 
+\### 4. Run php bin/console make:entity User 
 
 
 
@@ -106,7 +106,7 @@ Entity and Repository will create. Follow the setup instructions for creating fi
 
 
 
-Run php bin/console make:entity Task
+\### 5. Run php bin/console make:entity Task
 
 
 
@@ -114,7 +114,7 @@ Entity and Repository will create. Follow the setup instructions for creating fi
 
 
 
-Run php bin/console make:migration 
+\### 6. Run php bin/console make:migration 
 
 
 
@@ -126,7 +126,7 @@ Now migrations are created and tables are ready to serve.
 
 
 
-Create controller action to serve pages into frontend.
+\### 7. Create controller action to serve pages into frontend.
 
 
 
@@ -169,6 +169,102 @@ php bin/console make:controller Api/TaskController
 
 
 If required we can enable phpTestunit reports as well.
+
+
+
+\### 8. Accessing API's
+
+
+
+For creating user:
+
+curl -X POST  http://localhost:8000/api/users -H "Content-Type: application/json"   -d '{"name":"test","email":"test@example.com"}'
+
+
+
+For getting user by using userid:
+
+curl -X GET http://localhost:8000/api/users/{userid}
+
+
+
+For listing all users:
+
+curl -X GET http://localhost:8000/api/users
+
+
+
+For updating users:
+
+curl -X PATCH http://localhost:8000/api/users/{userid} -H "Content-Type: application/json"   -d '{"name":"test","email":"test@example.com"}'
+
+
+
+
+
+For deleting users:
+
+curl -X DELETE http://localhost:8000/api/users/{userid}
+
+
+
+For list all tasks for a user:
+
+curl -X GET http://localhost:8000/api/tasks/user/{userid}
+
+
+
+For listing tasks:
+
+curl -X GET  http://localhost:8000/api/tasks
+
+
+
+For getting task by using taskid:
+
+curl -X GET http://localhost:8000/api/tasks/{taskid}
+
+
+
+For creating task:
+
+curl -X POST  http://localhost:8000/api/tasks   -H "Content-Type: application/json"   -d '{"userId":1, "title":"Learn Symfony", "description":"Build API", "status":"todo"}'
+
+
+
+For updating status:
+
+curl -X PATCH  http://localhost:8000/api/tasks/{taskid}   -H "Content-Type: application/json"   -d '{"status":"todo"}'
+
+
+
+For deleting task:
+
+curl -X DELETE  http://localhost:8000/api/tasks/{taskid}
+
+
+
+
+
+\### 9. Console command to generate number of tasks(count) per user as per status
+
+Run php bin/console app:tasks:report --user="test@example.com"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

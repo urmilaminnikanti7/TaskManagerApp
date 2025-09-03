@@ -9,6 +9,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use App\Repository\UserRepository;
+use App\Repository\TaskRepository;
 
 #[AsCommand(
     name: 'app:tasks:report',
@@ -16,34 +18,63 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class TasksReportCommand extends Command
 {
-    public function __construct()
+    private UserRepository $userRepository;
+    private TaskRepository $taskRepository;
+    public function __construct(
+        UserRepository $userRepository, TaskRepository $taskRepository
+    )
     {
         parent::__construct();
+        $this->userRepository = $userRepository;
+        $this->taskRepository = $taskRepository;
     }
 
     protected function configure(): void
     {
-        $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+        $this->addOption('user', null, InputOption::VALUE_REQUIRED, 'Email of the user to generate report for');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
+        $statuses = ['todo', 'in_progress', 'done'];
+        $email = $input->getOption('user');
+        if ($email) {
+            // Single user mode
+            $user = $this->userRepository->findOneBy(['email' => $email]);
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+            if (!$user) {
+                $io->error("User with email '$email' not found.");
+                return Command::FAILURE;
+            }
+
+            $io->title("Tasks Report for " . $user->getEmail());
+            foreach ($statuses as $status) {
+                $count = $this->taskRepository->count([
+                    'user' => $user,
+                    'status' => $status,
+                ]);
+                $io->writeln(sprintf("  - %s: %d", ucfirst($status), $count));
+            }
+        }
+        else {
+            // All users mode
+            $io->title('Tasks Report for All Users');
+            $users = $this->userRepository->findAll();
+
+            foreach ($users as $user) {
+                $io->section("User: " . $user->getEmail());
+                foreach ($statuses as $status) {
+                    $count = $this->taskRepository->count([
+                        'user' => $user,
+                        'status' => $status,
+                    ]);
+                    $io->writeln(sprintf("  - %s: %d", ucfirst($status), $count));
+                }
+            }
         }
 
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
-
+        $io->success('Report generated successfully.');
         return Command::SUCCESS;
     }
 }
