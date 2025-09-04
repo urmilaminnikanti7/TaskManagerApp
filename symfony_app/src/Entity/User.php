@@ -8,10 +8,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'This email is already registered.')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -26,6 +28,13 @@ class User
     #[Assert\NotBlank(message: "Email is required")]
     #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     private ?string $email = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "Password is required", groups: ["create"])]
+    private ?string $password = null;
 
     #[ORM\OneToMany(
         mappedBy: 'user',
@@ -75,6 +84,45 @@ class User
         $this->email = $email;
 
         return $this;
+    }
+
+    // UserInterface requirement
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    // 🔑 Roles
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every users has at least ROLE_USER
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+        return array_unique($roles);
+    }
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    // 🔑 Password
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    // Not used, but required by UserInterface
+    public function eraseCredentials(): void
+    {
+        // Clear any temporary sensitive data here (like plainPassword)
     }
 
     // -----------------------------

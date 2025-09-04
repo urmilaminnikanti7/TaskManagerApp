@@ -16,13 +16,29 @@ This project is a Symfony application for user task management within a Dockeriz
 
 \## Prerequisites
 
-\-   \[\*\*Docker\*\*](https://www.docker.com/get-started) (engine and CLI)
-
-\-   \[\*\*Docker Compose\*\*](https://docs.docker.com/compose/install/)
 
 
+PHP >= 8.4
 
-\## Getting Started
+
+
+Composer
+
+
+
+Symfony CLI (optional but recommended)
+
+
+
+MySQL
+
+
+
+Docker 
+
+
+
+\## Installation
 
 
 
@@ -34,7 +50,7 @@ This project is a Symfony application for user task management within a Dockeriz
 
 First, clone this repository to your local machine using the following command:
 
-```sh
+
 
 git clone https://github.com/urmilaminnikanti7/TaskManagerApp.git
 
@@ -58,7 +74,7 @@ cd TaskManagerApp
 
 └── public
 
-&nbsp;   └── index.php
+   └── index.php
 
 
 
@@ -98,23 +114,45 @@ Check DB and related migration creation.
 
 
 
-\### 4. Run php bin/console make:entity User 
+\### 4. Entity Creation
 
 
 
-Entity and Repository will create. Follow the setup instructions for creating fields.
+User Entity:
 
 
 
-\### 5. Run php bin/console make:entity Task
+Run php bin/console make:entity User
 
 
 
-Entity and Repository will create. Follow the setup instructions for creating fields.
+Fields: id, name, email, roles, password
 
 
 
-\### 6. Run php bin/console make:migration 
+Relations: OneToMany with Task
+
+
+
+Task Entity:
+
+
+
+Run php bin/console make:entity Task
+
+
+
+Fields: id, title, description, status (todo, in-progress, done)
+
+
+
+Relations: ManyToOne with User
+
+
+
+
+
+\### 5. Run php bin/console make:migration 
 
 
 
@@ -122,11 +160,27 @@ Run php bin/console doctrine:migrations:migrate
 
 
 
+Insert Admin User:
+
+
+
+INSERT INTO user (name, email, roles, password) VALUES ('admin', 'admin@example.com', '\["ROLE\_ADMIN"]', '$2y$13$5EdZcAG/dQbeLULcL7/aJ.ujNuwNYyur8oTstyfemhH7KZd6ocqxK');
+
+
+
+Generate hased password using:
+
+
+
+Run php bin/console security:hash-password admin
+
+
+
 Now migrations are created and tables are ready to serve.
 
 
 
-\### 7. Create controller action to serve pages into frontend.
+\### 6. Create controller action to serve pages into frontend.
 
 
 
@@ -136,7 +190,7 @@ php bin/console make:controller HomeController
 
 It will create: src/Controller/HomeController.php
 
-&nbsp;               templates/home/index.html.twig
+               templates/home/index.html.twig
 
 
 
@@ -162,7 +216,7 @@ php bin/console make:controller Api/TaskController
 
 \[It will create src/Controller/Api/TaskController.php
 
-&nbsp;	       templates/api/task/index.html.twig]
+	       templates/api/task/index.html.twig]
 
 
 
@@ -172,13 +226,27 @@ If required we can enable phpTestunit reports as well.
 
 
 
-\### 8. Accessing API's
+\### 9. Accessing API's
 
 
 
 For creating user:
 
-curl -X POST  http://localhost:8000/api/users -H "Content-Type: application/json"   -d '{"name":"test","email":"test@example.com"}'
+curl -X POST http://localhost:8000/api/users \\
+
+-H "Content-Type: application/json" \\
+
+-d '{
+
+ "name": "test",
+
+ "email": "test@example.com",
+
+ "password": "admin",
+
+ "roles": \["ROLE\_ADMIN"]
+
+}'
 
 
 
@@ -196,10 +264,21 @@ curl -X GET http://localhost:8000/api/users
 
 For updating users:
 
-curl -X PATCH http://localhost:8000/api/users/{userid} -H "Content-Type: application/json"   -d '{"name":"test","email":"test@example.com"}'
+curl -X PATCH http://localhost:8000/api/users/6 \\
 
+-H "Content-Type: application/json" \\
 
+-d '{
 
+ "name": "test",
+
+ "email": "test@example.com",
+
+ "password": "admin",
+
+ "roles": \["ROLE_ADMIN","ROLE_USER"]
+
+}'
 
 
 For deleting users:
@@ -210,7 +289,7 @@ curl -X DELETE http://localhost:8000/api/users/{userid}
 
 For list all tasks for a user:
 
-curl -X GET http://localhost:8000/api/tasks/user/{userid}
+curl -X GET http://localhost:8000/api/tasks/users/{userid}
 
 
 
@@ -246,21 +325,220 @@ curl -X DELETE  http://localhost:8000/api/tasks/{taskid}
 
 
 
-\### 9. Console command to generate number of tasks(count) per user as per status
+\### 10. Console command to generate number of tasks(count) per user as per status
 
-Run php bin/console app:tasks:report --user="test@example.com"
+To get all users
 
+Run php bin/console app:tasks:report
 
+To get specific user
 
-
-
-
-
-
+Run php bin/console app:tasks:report --user=admin@example.com
 
 
 
+\### 10. Administration Interface
 
+
+
+To go to dashboard http://localhost:8080/admin
+
+
+
+To go to User dashboard http://localhost:8080/admin/users
+
+
+
+To go to Task dashboard http://localhost:8080/admin/tasks
+
+
+\### 11. Security \& Admin Login
+
+
+1.Configure Security in config/packages/security.yaml:
+
+
+
+security:
+
+   password\_hashers:
+
+       App\\Entity\\User:
+
+           algorithm: auto
+
+
+
+   providers:
+
+       app\_user\_provider:
+
+           entity:
+
+               class: App\\Entity\\User
+
+               property: email
+
+
+
+   firewalls:
+
+       main:
+
+           lazy: true
+
+           provider: app\_user\_provider
+
+           custom\_authenticator: App\\Security\\LoginFormAuthenticator
+
+           logout:
+
+               path: app\_logout
+
+               target: app\_login
+
+
+
+   access\_control:
+
+       - { path: ^/admin, roles: ROLE\_ADMIN }
+
+2.Create LoginFormAuthenticator.php and SecurityController.php for login/logout routes.
+
+
+
+3.Twig login template: templates/security/login.html.twig 
+
+
+
+4.CRUD for Users \& Tasks
+
+
+
+Admin Dashboard: templates/admin/dashboard.html.twig
+
+
+
+Links to Users and Tasks
+
+
+
+Users Management:
+
+
+
+List: admin/users/list.html.twig
+
+
+
+Create/Edit Form: admin/users/form.html.twig
+
+
+
+Actions: Create, Edit, Delete
+
+
+
+Tasks Management:
+
+
+
+List: admin/tasks/list.html.twig
+
+
+
+Create/Edit Form: admin/tasks/form.html.twig
+
+
+
+Actions: Create, Edit, Delete
+
+
+
+Status dropdown (todo, in-progress, done)
+
+
+
+Assign user to task via select dropdown
+
+
+
+Controllers:
+
+
+
+AdminUserController.php → User CRUD
+
+
+
+AdminTaskController.php → Task CRUD
+
+
+
+5\. Running the Application
+
+
+
+Start Symfony server:
+
+
+
+symfony server:start
+
+
+
+
+
+Access the application:
+
+
+
+http://localhost:8000/login
+
+
+
+
+
+Login with admin credentials and manage Users \& Tasks.
+
+Routes
+
+Route	Description
+
+/login	Admin login
+
+/logout	Logout
+
+/admin	Admin Dashboard
+
+/admin/users	List Users
+
+/admin/users/create	Create User
+
+/admin/users/{id}/edit	Edit User
+
+/admin/users/{id}/delete	Delete User
+
+/admin/tasks	List Tasks
+
+/admin/tasks/create	Create Task
+
+/admin/tasks/{id}/edit	Edit Task
+
+/admin/tasks/{id}/delete	Delete Task
+
+
+
+Notes
+
+
+Roles: Only users with ROLE\_ADMIN can access /admin/\* routes.
+
+Validation: Ensure email is unique and status is one of allowed choices.
+
+CSRF: All delete forms include CSRF token.
+
+Design: Bootstrap 5 with badges, cards, and centered forms.
 
 
 

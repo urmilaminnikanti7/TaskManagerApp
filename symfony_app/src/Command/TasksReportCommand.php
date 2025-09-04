@@ -14,7 +14,7 @@ use App\Repository\TaskRepository;
 
 #[AsCommand(
     name: 'app:tasks:report',
-    description: 'Tasks count as per status for each user,',
+    description: 'Tasks count as per status for each users,',
 )]
 class TasksReportCommand extends Command
 {
@@ -31,7 +31,7 @@ class TasksReportCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('user', null, InputOption::VALUE_REQUIRED, 'Email of the user to generate report for');
+        $this->addOption('user', null, InputOption::VALUE_REQUIRED, 'Email of the users to generate report for');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -40,7 +40,7 @@ class TasksReportCommand extends Command
         $statuses = ['todo', 'in_progress', 'done'];
         $email = $input->getOption('user');
         if ($email) {
-            // Single user mode
+            // Single users mode
             $user = $this->userRepository->findOneBy(['email' => $email]);
 
             if (!$user) {

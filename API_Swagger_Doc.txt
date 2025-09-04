@@ -1,0 +1,51 @@
+Step 1: Install API Platform
+
+composer require api
+
+This will install API Platform along with Swagger/OpenAPI support.
+
+Step 2: Annotate your User entity
+
+
+#[ApiResource] automatically exposes this entity as a REST API.
+
+collectionOperations: ['get'] will create the GET /users endpoint.
+
+API Platform auto-generates the OpenAPI documentation.
+
+Step 3: Configure API Platform routes
+
+API Platform automatically adds routes. Ensure you have this in config/routes/api_platform.yaml (usually already present):
+
+api_platform:
+    resource: .
+    type: api_platform
+    prefix: /api
+
+
+Your API endpoint will now be available at:
+
+GET http://localhost:8080/api/users
+
+Step 4: Access OpenAPI/Swagger Documentation
+
+API Platform exposes Swagger UI at:
+
+http://localhost:8080/api/docs
+
+
+You will see the List all Users API automatically documented with:
+
+Path: /api/users
+
+Method: GET
+
+Response schema: id, name, email, roles
+
+Notes
+
+API Platform automatically generates OpenAPI 3 documentation for every entity with #[ApiResource].
+
+You can add more operations (POST, PUT, DELETE) and they will appear in Swagger UI automatically.
+
+

@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm p-3">
+                    <h4>Users</h4>
+                    <a href="{{ path('admin_users') }}" class="btn btn-primary mt-2"><i class="bi bi-people-fill"></i> Manage Users</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm p-3">
+                    <h4>Tasks</h4>
+                    <a href="{{ path('admin_tasks') }}" class="btn btn-success mt-2"><i class="bi bi-list-task"></i> Manage Tasks</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

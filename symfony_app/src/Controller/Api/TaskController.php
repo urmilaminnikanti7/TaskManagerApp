@@ -15,10 +15,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class TaskController extends AbstractController
 {
     // -----------------------------
-    // List all tasks for a user
+    // List all tasks for a users
     // GET /api/tasks/{userId}
     // -----------------------------
-    #[Route('/user/{userId}', name: 'list', methods: ['GET'])]
+    #[Route('/users/{userId}', name: 'list', methods: ['GET'])]
     public function list(int $userId, EntityManagerInterface $em): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($userId);
@@ -41,7 +41,7 @@ class TaskController extends AbstractController
     }
 
     // -----------------------------
-    // Get user
+    // Get users
     // GET /api/users
     // -----------------------------
     #[Route('/{taskId}', name:'gettask', methods: ['GET'])]
@@ -73,7 +73,7 @@ class TaskController extends AbstractController
             'title' => $task->getTitle(),
             'description' => $task->getDescription(),
             'status' => $task->getStatus(),
-            'user' => $task->getUser() ? $task->getUser()->getId() : null,
+            'users' => $task->getUser() ? $task->getUser()->getId() : null,
             'createdAt' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
             'updatedAt' => $task->getUpdatedAt()->format('Y-m-d H:i:s'),
         ], $tasks);
@@ -82,7 +82,7 @@ class TaskController extends AbstractController
     }
 
     // -----------------------------
-    // Create a new task for a user
+    // Create a new task for a users
     // POST /api/tasks
     // -----------------------------
     #[Route('', name: 'create', methods: ['POST'])]

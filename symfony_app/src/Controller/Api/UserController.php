@@ -9,10 +9,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
 
 #[Route('/api/users', name: 'api_users_')]
 class UserController extends AbstractController
 {
+    private UserPasswordHasherInterface $passwordHasher;
+    private ValidatorInterface $validator;
+
+    public function __construct(
+        UserPasswordHasherInterface $passwordHasher,
+        ValidatorInterface $validator
+    ) {
+        $this->passwordHasher = $passwordHasher;
+        $this->validator = $validator;
+    }
+
     // -----------------------------
     // List all users
     // GET /api/users
@@ -32,7 +45,7 @@ class UserController extends AbstractController
     }
 
     // -----------------------------
-    // Get user
+    // Get users
     // GET /api/users
     // -----------------------------
     #[Route('/{userId}', name:'getuser', methods: ['GET'])]
@@ -46,33 +59,34 @@ class UserController extends AbstractController
         return new JsonResponse([
             'id' => $user->getId(),
             'name' => $user->getName(),
-            'email' => $user->getEmail(),
+            'email' => $user->getEmail()
         ]);
     }
 
     // -----------------------------
-    // Create a new user
+    // Create a new users
     // POST /api/users
     // -----------------------------
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(
         Request $request,
-        EntityManagerInterface $em,
-        ValidatorInterface $validator,
+        EntityManagerInterface $em
     ): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['name'], $data['email'])) {
-            return $this->json(['error' => 'Name & Emails are required'], 400);
+        if (!isset($data['name'], $data['email'], $data['password'], $data['roles'])) {
+            return $this->json(['error' => 'Missing fields are required'], 400);
         }
 
         $user = new User();
         $user->setName($data['name']);
         $user->setEmail($data['email']);
+        $user->setRoles($data['roles']);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
 
         // Validate
-        $errors = $validator->validate($user);
+        $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
@@ -92,7 +106,7 @@ class UserController extends AbstractController
     }
 
     // -----------------------------
-    // update user
+    // update users
     // PATCH /api/users/{userId}
     // -----------------------------
     #[Route('/{userId}', name: 'update', methods: ['PATCH'])]
@@ -117,6 +131,16 @@ class UserController extends AbstractController
             $user->setEmail($data['email']);
         }
 
+        // Update roles if provided
+        if (isset($data['roles']) && is_array($data['roles'])) {
+            $user->setRoles($data['roles']);
+        }
+
+        // Update password if provided
+        if (!empty($data['password'])) {
+            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+        }
+
         // validate before saving
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
@@ -131,7 +155,7 @@ class UserController extends AbstractController
 
         return new JsonResponse([
             'message' => 'User updated successfully',
-            'user' => [
+            'users' => [
                 'id' => $user->getId(),
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
@@ -140,7 +164,7 @@ class UserController extends AbstractController
     }
 
     // -----------------------------
-    // Delete user
+    // Delete users
     // DELETE /api/users/{userId}
     // -----------------------------
     #[Route('/{userId}', name: 'delete', methods: ['DELETE'])]

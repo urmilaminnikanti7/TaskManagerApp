@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="card shadow-lg border-0 rounded-4" style="width: 500px;">
+            <div class="card-header bg-primary text-white text-center rounded-top-4">
+                <h4 class="mb-0"><i class="bi bi-person-fill"></i> {{ title }}</h4>
+            </div>
+            <div class="card-body p-4">
+                {{ form_start(form) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.name, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Enter name'}}) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter email'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.password, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                    {{ form_widget(form.password, {'attr': {'class': 'form-control', 'placeholder': 'Enter password'}}) }}
+                    <small class="text-muted">Leave empty when editing to keep current password.</small>
+                    {{ form_errors(form.password) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.roles, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                    {{ form_widget(form.roles, {'attr': {'class': 'form-select'}}) }}
+                    {{ form_errors(form.roles) }}
+                </div>
+
+                <button class="btn btn-success w-100 py-2">
+                    <i class="bi bi-save"></i> Save
+                </button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
